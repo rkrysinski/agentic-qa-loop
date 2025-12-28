@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-def create_agent(model_env_key: str, system_prompt: str, result_type=None) -> Agent:
+def create_agent(model_env_key: str, system_prompt: str, result_type=str) -> Agent:
     """
     Creates a PydanticAI Agent. 
     Uses LiteLLM conventions for model names (e.g. azure/gpt-4o) which are passed to the model constructor.
@@ -15,14 +15,14 @@ def create_agent(model_env_key: str, system_prompt: str, result_type=None) -> Ag
     if not model_name:
         raise ValueError(f"Environment variable {model_env_key} not set.")
     
-    # Using OpenAIModel as a generic wrapper that often works with compatible endpoints
-    # For Azure, we might need to ensure api_base and api_version are set in env or passed explicitly.
-    # pydantic_ai might use `openai` library under the hood, which respects env vars like AZURE_OPENAI_API_KEY if configured.
-    # However, to be safe and strictly follow the plan:
+    from app.litellm_model import LiteLLMModel
     
-    model = OpenAIModel(model_name=model_name)
+    # We use our custom LiteLLMModel which routes requests via litellm directly
+    # This keeps the code agnostic to the underlying provider (Azure, OpenAI, Gemini, etc.)
     
-    agent = Agent(model, system_prompt=system_prompt, result_type=result_type)
+    model = LiteLLMModel(model_name=model_name)
+    
+    agent = Agent(model, system_prompt=system_prompt, output_type=result_type)
     return agent
 
 PRODUCER_SYSTEM_PROMPT = """
