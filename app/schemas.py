@@ -6,7 +6,7 @@ class ActionableFeedback(BaseModel):
     severity: Literal["LOW", "MEDIUM", "HIGH"]
     issue_description: str
     actionable_fix: str
-    reference_snippets: List[str] = Field(default_factory=list, description="Snippets from the source text that are relevant to the issue")
+    reference_snippets: List[str] = Field(..., description="Snippets from the source text that are relevant to the issue")
 
 class QuantitativeScores(BaseModel):
     groundedness: float = Field(..., ge=0.0, le=1.0)
