@@ -35,7 +35,7 @@ class Orchestrator:
                     prompt += "\n\nPlease generate the initial answer."
 
                 result = await self.producer.run(prompt)
-                current_answer = result.data
+                current_answer = result.output
                 step.output = current_answer
 
             # Phase 3: Critic evaluates
@@ -54,7 +54,7 @@ class Orchestrator:
                 """
                 
                 result = await self.critic.run(critic_prompt)
-                critique: CritiqueResult = result.data
+                critique: CritiqueResult = result.output
                 step.output = critique.model_dump_json(indent=2)
                 
             feedback_dict = critique.model_dump()
