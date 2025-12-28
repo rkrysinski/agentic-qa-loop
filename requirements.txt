@@ -1,0 +1,5 @@
+pydantic-ai
+litellm
+chainlit
+python-dotenv
+watchfiles
