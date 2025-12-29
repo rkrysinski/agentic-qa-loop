@@ -1,7 +1,8 @@
 import os
 from pydantic_ai import Agent
+from pydantic_ai.models.openai import OpenAIChatModel
+from pydantic_ai.providers.litellm import LiteLLMProvider
 from dotenv import load_dotenv
-from app.litellm_model import LiteLLMModel
 from app.schemas import CritiqueResult
 from app.config import config
 
@@ -57,9 +58,23 @@ Be skeptical and act as a "red-teamer" - your job is to find flaws, not to be le
 """
 
 
+def _create_litellm_provider() -> LiteLLMProvider:
+    """
+    Create a LiteLLMProvider configured for Azure OpenAI.
+    
+    Returns:
+        Configured LiteLLMProvider instance.
+    """
+    return LiteLLMProvider(
+        api_base=config.azure_api_base,
+        api_key=config.azure_api_key
+    )
+
+
 def create_producer_agent(
     model_name: str | None = None,
-    temperature: float | None = None
+    temperature: float | None = None,
+    model_settings: dict | None = None
 ) -> Agent:
     """
     Create the Producer agent with customizable parameters.
@@ -69,27 +84,34 @@ def create_producer_agent(
                    If None, uses config.producer_model.
         temperature: Sampling temperature for generation.
                     If None, uses config.producer_temperature.
+        model_settings: Additional LiteLLM parameters (max_tokens, top_p, etc.)
     
     Returns:
         Configured Producer Agent instance.
     """
     producer_config = config.get_producer_config()
     
-    model = LiteLLMModel(
-        model_name=model_name or producer_config.model_name,
-        temperature=temperature if temperature is not None else producer_config.temperature
+    model = OpenAIChatModel(
+        model_name or producer_config.model_name,
+        provider=_create_litellm_provider()
     )
+    
+    # Merge temperature into model_settings
+    final_settings = model_settings or {}
+    final_settings["temperature"] = temperature if temperature is not None else producer_config.temperature
     
     return Agent(
         model,
         system_prompt=PRODUCER_SYSTEM_PROMPT,
-        output_type=str
+        output_type=str,
+        model_settings=final_settings
     )
 
 
 def create_critic_agent(
     model_name: str | None = None,
-    temperature: float | None = None
+    temperature: float | None = None,
+    model_settings: dict | None = None
 ) -> Agent:
     """
     Create the Critic agent with structured output for evaluation.
@@ -99,19 +121,25 @@ def create_critic_agent(
                    If None, uses config.critic_model.
         temperature: Sampling temperature for generation.
                     If None, uses config.critic_temperature.
+        model_settings: Additional LiteLLM parameters (max_tokens, top_p, etc.)
     
     Returns:
         Configured Critic Agent instance with CritiqueResult output type.
     """
     critic_config = config.get_critic_config()
     
-    model = LiteLLMModel(
-        model_name=model_name or critic_config.model_name,
-        temperature=temperature if temperature is not None else critic_config.temperature
+    model = OpenAIChatModel(
+        model_name or critic_config.model_name,
+        provider=_create_litellm_provider()
     )
+    
+    # Merge temperature into model_settings
+    final_settings = model_settings or {}
+    final_settings["temperature"] = temperature if temperature is not None else critic_config.temperature
     
     return Agent(
         model,
         system_prompt=CRITIC_SYSTEM_PROMPT,
-        output_type=CritiqueResult
+        output_type=CritiqueResult,
+        model_settings=final_settings
     )
