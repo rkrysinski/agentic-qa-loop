@@ -1,6 +1,6 @@
 from typing import List, Optional
 import chainlit as cl
-from app.agents import create_agent, PRODUCER_SYSTEM_PROMPT, CRITIC_SYSTEM_PROMPT
+from app.agents import create_producer_agent, create_critic_agent
 from app.schemas import CritiqueResult
 import datetime
 
@@ -10,8 +10,8 @@ class Orchestrator:
         self.question = question
         self.max_iterations = 3
         
-        self.producer = create_agent("PRODUCER_MODEL", PRODUCER_SYSTEM_PROMPT)
-        self.critic = create_agent("CRITIC_MODEL", CRITIC_SYSTEM_PROMPT, result_type=CritiqueResult)
+        self.producer = create_producer_agent()
+        self.critic = create_critic_agent()
 
     async def run(self):
         context = f"Document Content:\n{self.document_content}\n\nQuestion: {self.question}"

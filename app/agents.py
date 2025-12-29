@@ -1,30 +1,12 @@
 import os
 from pydantic_ai import Agent
-from pydantic_ai.models.openai import OpenAIModel
 from dotenv import load_dotenv
+from app.litellm_model import LiteLLMModel
+from app.schemas import CritiqueResult
 
 load_dotenv()
 
-def create_agent(model_env_key: str, system_prompt: str, result_type=str) -> Agent:
-    """
-    Creates a PydanticAI Agent. 
-    Uses LiteLLM conventions for model names (e.g. azure/gpt-4o) which are passed to the model constructor.
-    We assume the environment variables are set for the respective provider.
-    """
-    model_name = os.getenv(model_env_key)
-    if not model_name:
-        raise ValueError(f"Environment variable {model_env_key} not set.")
-    
-    from app.litellm_model import LiteLLMModel
-    
-    # We use our custom LiteLLMModel which routes requests via litellm directly
-    # This keeps the code agnostic to the underlying provider (Azure, OpenAI, Gemini, etc.)
-    
-    model = LiteLLMModel(model_name=model_name)
-    
-    agent = Agent(model, system_prompt=system_prompt, output_type=result_type)
-    return agent
-
+# System Prompts
 PRODUCER_SYSTEM_PROMPT = """
 You are the Producer Agent, a lead synthesizer.
 Your goal is to analyze the source document and generate a comprehensive answer to the user's question.
@@ -72,3 +54,61 @@ Be skeptical and act as a "red-teamer" - your job is to find flaws, not to be le
 - Always cite specific evidence from the source document in your feedback
 - Prioritize HIGH severity for factual errors or hallucinations
 """
+
+
+def create_producer_agent(
+    model_name: str | None = None,
+    temperature: float = 1.0
+) -> Agent:
+    """
+    Create the Producer agent with customizable parameters.
+    
+    Args:
+        model_name: LiteLLM model identifier (e.g., "azure/gpt-4o"). 
+                   If None, reads from PRODUCER_MODEL env var.
+        temperature: Sampling temperature for generation.
+    
+    Returns:
+        Configured Producer Agent instance.
+    """
+    if model_name is None:
+        model_name = os.getenv("PRODUCER_MODEL")
+        if not model_name:
+            raise ValueError("PRODUCER_MODEL environment variable not set and no model_name provided.")
+    
+    model = LiteLLMModel(model_name=model_name, temperature=temperature)
+    
+    return Agent(
+        model,
+        system_prompt=PRODUCER_SYSTEM_PROMPT,
+        output_type=str
+    )
+
+
+def create_critic_agent(
+    model_name: str | None = None,
+    temperature: float = 1.0
+) -> Agent:
+    """
+    Create the Critic agent with structured output for evaluation.
+    
+    Args:
+        model_name: LiteLLM model identifier (e.g., "azure/gpt-4o-mini").
+                   If None, reads from CRITIC_MODEL env var.
+        temperature: Sampling temperature for generation.
+    
+    Returns:
+        Configured Critic Agent instance with CritiqueResult output type.
+    """
+    if model_name is None:
+        model_name = os.getenv("CRITIC_MODEL")
+        if not model_name:
+            raise ValueError("CRITIC_MODEL environment variable not set and no model_name provided.")
+    
+    model = LiteLLMModel(model_name=model_name, temperature=temperature)
+    
+    return Agent(
+        model,
+        system_prompt=CRITIC_SYSTEM_PROMPT,
+        output_type=CritiqueResult
+    )

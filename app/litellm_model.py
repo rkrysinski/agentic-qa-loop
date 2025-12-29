@@ -11,8 +11,9 @@ class LiteLLMModel(Model):
     without relying on specific provider clients.
     """
     
-    def __init__(self, model_name: str):
+    def __init__(self, model_name: str, temperature: float = 1.0):
         self._model_name = model_name
+        self._temperature = temperature
 
     @property
     def model_name(self) -> str:
@@ -49,7 +50,7 @@ class LiteLLMModel(Model):
         litellm_kwargs = {
             "model": self.model_name,
             "messages": openai_messages,
-            "temperature": 1  # Default, or extract from model_settings if available
+            "temperature": self._temperature
         }
         
         # Handle structured output if requested
