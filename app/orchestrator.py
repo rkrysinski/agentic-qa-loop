@@ -56,7 +56,45 @@ class Orchestrator:
                 
                 result = await self.critic.run(critic_prompt)
                 critique: CritiqueResult = result.output
-                step.output = critique.model_dump_json(indent=2)
+                
+                # Format critique for human-readable display
+                status_emoji = "✅" if critique.global_status == "PASS" else "❌"
+                status_badge = f"**{status_emoji} {critique.global_status}**"
+                
+                # Format scores with visual indicators
+                def format_score(score: float) -> str:
+                    percentage = int(score * 100)
+                    if score >= 0.8:
+                        return f"🟢 {percentage}%"
+                    elif score >= 0.5:
+                        return f"🟡 {percentage}%"
+                    else:
+                        return f"🔴 {percentage}%"
+                
+                scores_display = f"""
+**Quantitative Scores:**
+- Groundedness: {format_score(critique.quantitative_scores.groundedness)}
+- Recall: {format_score(critique.quantitative_scores.recall)}
+- Precision: {format_score(critique.quantitative_scores.precision)}
+- Logical Consistency: {format_score(critique.quantitative_scores.logical_consistency)}
+- Instruction Following: {format_score(critique.quantitative_scores.instruction_following)}
+
+**Critic Confidence:** {int(critique.critic_confidence_score * 100)}%
+"""
+                
+                # Format actionable feedback
+                feedback_display = ""
+                if critique.actionable_feedback:
+                    feedback_display = "\n**Actionable Feedback:**\n"
+                    for i, feedback in enumerate(critique.actionable_feedback, 1):
+                        severity_emoji = {"LOW": "ℹ️", "MEDIUM": "⚠️", "HIGH": "🚨"}.get(feedback.severity, "")
+                        feedback_display += f"\n{i}. **{feedback.dimension}** {severity_emoji} {feedback.severity}\n"
+                        feedback_display += f"   - Issue: {feedback.issue_description}\n"
+                        feedback_display += f"   - Fix: {feedback.actionable_fix}\n"
+                        if feedback.reference_snippets:
+                            feedback_display += f"   - References: {', '.join(f'`{s[:50]}...`' for s in feedback.reference_snippets[:2])}\n"
+                
+                step.output = f"{status_badge}\n\n{scores_display}{feedback_display}"
                 
             feedback_dict = critique.model_dump()
             
