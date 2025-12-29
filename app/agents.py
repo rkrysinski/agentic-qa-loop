@@ -3,6 +3,7 @@ from pydantic_ai import Agent
 from dotenv import load_dotenv
 from app.litellm_model import LiteLLMModel
 from app.schemas import CritiqueResult
+from app.config import config
 
 load_dotenv()
 
@@ -58,25 +59,26 @@ Be skeptical and act as a "red-teamer" - your job is to find flaws, not to be le
 
 def create_producer_agent(
     model_name: str | None = None,
-    temperature: float = 1.0
+    temperature: float | None = None
 ) -> Agent:
     """
     Create the Producer agent with customizable parameters.
     
     Args:
         model_name: LiteLLM model identifier (e.g., "azure/gpt-4o"). 
-                   If None, reads from PRODUCER_MODEL env var.
+                   If None, uses config.producer_model.
         temperature: Sampling temperature for generation.
+                    If None, uses config.producer_temperature.
     
     Returns:
         Configured Producer Agent instance.
     """
-    if model_name is None:
-        model_name = os.getenv("PRODUCER_MODEL")
-        if not model_name:
-            raise ValueError("PRODUCER_MODEL environment variable not set and no model_name provided.")
+    producer_config = config.get_producer_config()
     
-    model = LiteLLMModel(model_name=model_name, temperature=temperature)
+    model = LiteLLMModel(
+        model_name=model_name or producer_config.model_name,
+        temperature=temperature if temperature is not None else producer_config.temperature
+    )
     
     return Agent(
         model,
@@ -87,25 +89,26 @@ def create_producer_agent(
 
 def create_critic_agent(
     model_name: str | None = None,
-    temperature: float = 1.0
+    temperature: float | None = None
 ) -> Agent:
     """
     Create the Critic agent with structured output for evaluation.
     
     Args:
         model_name: LiteLLM model identifier (e.g., "azure/gpt-4o-mini").
-                   If None, reads from CRITIC_MODEL env var.
+                   If None, uses config.critic_model.
         temperature: Sampling temperature for generation.
+                    If None, uses config.critic_temperature.
     
     Returns:
         Configured Critic Agent instance with CritiqueResult output type.
     """
-    if model_name is None:
-        model_name = os.getenv("CRITIC_MODEL")
-        if not model_name:
-            raise ValueError("CRITIC_MODEL environment variable not set and no model_name provided.")
+    critic_config = config.get_critic_config()
     
-    model = LiteLLMModel(model_name=model_name, temperature=temperature)
+    model = LiteLLMModel(
+        model_name=model_name or critic_config.model_name,
+        temperature=temperature if temperature is not None else critic_config.temperature
+    )
     
     return Agent(
         model,

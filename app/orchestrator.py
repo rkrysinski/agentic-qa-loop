@@ -2,13 +2,14 @@ from typing import List, Optional
 import chainlit as cl
 from app.agents import create_producer_agent, create_critic_agent
 from app.schemas import CritiqueResult
+from app.config import config
 import datetime
 
 class Orchestrator:
-    def __init__(self, document_content: str, question: str):
+    def __init__(self, document_content: str, question: str, max_iterations: int | None = None):
         self.document_content = document_content
         self.question = question
-        self.max_iterations = 3
+        self.max_iterations = max_iterations or config.max_iterations
         
         self.producer = create_producer_agent()
         self.critic = create_critic_agent()
