@@ -16,6 +16,7 @@ The system orchestrates a feedback loop where the Critic's structured evaluation
 - **Multi-Agent Architecture**: Decoupled synthesis and auditing roles with specialized prompts
 - **Structured Output**: Pydantic-enforced JSON schema for critiques with quantitative scores and actionable feedback
 - **Interactive UI**: Built with **Chainlit** - visualize every iteration and agent interaction
+- **Chat with your Answer**: Iterate on the final result by asking follow-up questions without re-uploading documents
 - **Configurable Settings**: Adjust max iterations via UI slider (1-10 range)
 - **Provider Agnostic**: Uses **PydanticAI** + **LiteLLM** to support any LLM provider (Azure OpenAI, OpenAI, Anthropic, Google, etc.)
 - **Type-Safe Configuration**: Pydantic-based settings with environment variable support
@@ -131,6 +132,9 @@ docker-compose up
    - Producer refines based on critique
    - Repeat until PASS or max iterations reached
 7. **Review the final answer**
+8. **Iterate (Optional)**:
+   - Ask follow-up questions (e.g., "Make it shorter", "Translate to Spanish")
+   - The system will use the *previous answer* as context for further refinement
 
 ## 🧩 Architecture
 

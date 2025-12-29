@@ -30,7 +30,9 @@ Upload Document → Ask Question
     ✅ PASS → Return final answer
     ❌ FAIL → Producer refines based on feedback
          ↓
-    Repeat until PASS or max iterations
+    Repeat until PASS or max iterations reached
+         ↓
+    ✅ Review & Iterate (ask follow-up questions)
 ```
 
 ## 📊 Evaluation Rubric
@@ -60,8 +62,10 @@ Click the **settings icon** (⚙️) to configure:
 
 1. **Upload clear documents**: Text files, Markdown, or PDFs work best
 2. **Ask specific questions**: "What are the key findings?" is better than "Summarize this"
-3. **Watch the iterations**: See how the answer improves with each cycle
-4. **Review the scores**: Understand where the answer excels or needs work
+2. **Ask specific questions**: "What are the key findings?" is better than "Summarize this"
+3. **Iterate**: Don't like the answer? Ask the system to "Make it shorter" or "Focus on cost" (it remembers context!)
+4. **Watch the iterations**: See how the answer improves with each cycle
+5. **Review the scores**: Understand where the answer excels or needs work
 
 ## 🔧 Technical Details
 

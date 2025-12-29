@@ -56,17 +56,31 @@ async def main(message: cl.Message):
     # Get uploaded files
     files = message.elements
     
-    if not files:
-        await cl.Message(content="⚠️ Please upload a document first.").send()
-        return
+    # Initialize variables
+    document_content = None
     
-    # Extract text from the first file
-    file_path = files[0].path
-    document_content = extract_text_from_file(file_path)
-    
-    if not document_content:
-        await cl.Message(content="❌ Could not extract text from the file.").send()
-        return
+    if files:
+        # Extract text from the first file
+        file_path = files[0].path
+        document_content = extract_text_from_file(file_path)
+        
+        if not document_content:
+            await cl.Message(content="❌ Could not extract text from the file.").send()
+            return
+
+        # Clear previous final answer when new file is uploaded
+        cl.user_session.set("final_answer", None)
+        
+    else:
+        # Check if we have a previous final answer to iterate on
+        previous_answer = cl.user_session.get("final_answer")
+        if previous_answer:
+            document_content = previous_answer
+            # Notify user we are iterating
+            await cl.Message(content="🔄 Iterating on previous answer...").send()
+        else:
+            await cl.Message(content="⚠️ Please upload a document first.").send()
+            return
     
     # Get current settings
     settings = cl.user_session.get("settings", {"max_iterations": config.max_iterations})
@@ -81,6 +95,9 @@ async def main(message: cl.Message):
     
     # Run the Q&A loop
     final_answer = await orchestrator.run()
+    
+    # Store final answer for potential iteration
+    cl.user_session.set("final_answer", final_answer)
     
     # Send final result
     await cl.Message(
