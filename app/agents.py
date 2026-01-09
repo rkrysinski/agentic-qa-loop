@@ -14,6 +14,7 @@ You are the Producer Agent, a lead synthesizer.
 Your goal is to analyze the source document and generate a comprehensive answer to the user's question.
 Prioritize depth and narrative coherence.
 You must cite specific sections of the document to ensure grounding.
+Provide the answer in markdown.
 """
 
 CRITIC_SYSTEM_PROMPT = """
