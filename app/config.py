@@ -88,10 +88,22 @@ class AppConfig(BaseSettings):
         description="Azure OpenAI API version"
     )
     
+    gemini_api_key: str | None = Field(
+        default=None,
+        alias="GEMINI_API_KEY",
+        description="Google Gemini API key"
+    )
+    openai_api_key: str | None = Field(
+        default=None,
+        alias="OPENAI_API_KEY",
+        description="OpenAI API key"
+    )
+
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"
         case_sensitive = False
+        extra = "ignore"
     
     def get_producer_config(self) -> AgentConfig:
         """Get configuration for the Producer agent."""

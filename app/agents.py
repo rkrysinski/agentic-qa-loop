@@ -58,18 +58,22 @@ Be skeptical and act as a "red-teamer" - your job is to find flaws, not to be le
 - Prioritize HIGH severity for factual errors or hallucinations
 """
 
-
-def _create_litellm_provider() -> LiteLLMProvider:
+def _resolve_model(model_name: str) -> str | OpenAIChatModel:
     """
-    Create a LiteLLMProvider configured for Azure OpenAI.
+    Resolve the model to use based on configuration.
     
-    Returns:
-        Configured LiteLLMProvider instance.
+    If Azure configuration is present, forces OpenAIChatModel with LiteLLMProvider.
+    Otherwise, returns the model name string for PydanticAI to infer the provider.
     """
-    return LiteLLMProvider(
-        api_base=config.azure_api_base,
-        api_key=config.azure_api_key
-    )
+    if config.azure_api_key and config.azure_api_base:
+        return OpenAIChatModel(
+            model_name,
+            provider=LiteLLMProvider(
+                api_base=config.azure_api_base,
+                api_key=config.azure_api_key
+            )
+        )
+    return model_name
 
 
 def create_producer_agent(
@@ -91,11 +95,8 @@ def create_producer_agent(
         Configured Producer Agent instance.
     """
     producer_config = config.get_producer_config()
-    
-    model = OpenAIChatModel(
-        model_name or producer_config.model_name,
-        provider=_create_litellm_provider()
-    )
+    final_model_name = model_name or producer_config.model_name
+    model = _resolve_model(final_model_name)
     
     # Merge temperature into model_settings
     final_settings = model_settings or {}
@@ -128,11 +129,8 @@ def create_critic_agent(
         Configured Critic Agent instance with CritiqueResult output type.
     """
     critic_config = config.get_critic_config()
-    
-    model = OpenAIChatModel(
-        model_name or critic_config.model_name,
-        provider=_create_litellm_provider()
-    )
+    final_model_name = model_name or critic_config.model_name
+    model = _resolve_model(final_model_name)
     
     # Merge temperature into model_settings
     final_settings = model_settings or {}
