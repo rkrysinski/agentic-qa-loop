@@ -57,35 +57,30 @@ cp .env.example .env
 Edit `.env` with your API credentials:
 
 ```env
-# Azure OpenAI Configuration
-AZURE_API_KEY=your_azure_api_key_here
-AZURE_API_BASE=https://your-resource.openai.azure.com/
-AZURE_API_VERSION=2024-02-15-preview
-
-# Model Configuration
-PRODUCER_MODEL=azure/gpt-5-mini
+GOOGLE_API_KEY=<your_key>
+PRODUCER_MODEL=gemini-2.5-pro
 PRODUCER_TEMPERATURE=1.0
 
-CRITIC_MODEL=azure/gpt-4o
-CRITIC_TEMPERATURE=0.4
+OPENAI_API_KEY=<your_key>
+CRITIC_MODEL=gpt-5.2
+CRITIC_TEMPERATURE=0.2
 
-# Orchestrator Configuration
-MAX_ITERATIONS=3
-PASS_THRESHOLD=0.8
+MAX_ITERATIONS=8
+PASS_THRESHOLD=0.9
 ```
 
 ### Configuration Options
 
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `PRODUCER_MODEL` | LiteLLM model identifier for Producer | `azure/gpt-5-mini` |
+| `PRODUCER_MODEL` | LiteLLM model identifier for Producer | `gemini-2.5-pro` |
 | `PRODUCER_TEMPERATURE` | Sampling temperature for Producer | `1.0` |
-| `CRITIC_MODEL` | LiteLLM model identifier for Critic | `azure/gpt-4o` |
-| `CRITIC_TEMPERATURE` | Sampling temperature for Critic | `0.4` |
-| `MAX_ITERATIONS` | Default maximum refinement loops | `3` |
-| `PASS_THRESHOLD` | Minimum score for PASS status | `0.8` |
+| `CRITIC_MODEL` | LiteLLM model identifier for Critic | `gpt-5.2` |
+| `CRITIC_TEMPERATURE` | Sampling temperature for Critic | `0.2` |
+| `MAX_ITERATIONS` | Default maximum refinement loops | `8` |
+| `PASS_THRESHOLD` | Minimum score for PASS status | `0.9` |
 
-**Note**: You can use any LiteLLM-supported model name (e.g., `gpt-4o`, `claude-3-5-sonnet`, `gemini/gemini-pro`). See [LiteLLM docs](https://docs.litellm.ai/docs/providers) for supported providers.
+**Note**: You can use any LiteLLM-supported model name (e.g., `gpt-4o`, `claude-3-5-sonnet`, `gemini-2.5-pro`). See [LiteLLM docs](https://docs.litellm.ai/docs/providers) for supported providers.
 
 ## 🐳 Running with Docker (Recommended)
 
@@ -168,26 +163,6 @@ Defined in [`app/orchestrator.py`](app/orchestrator.py):
      - `FAIL` → Feed actionable feedback back to Producer
 3. **Termination**: Return best answer after max iterations or on PASS
 
-### Agent Configuration
-
-Agents are created via specialized factory methods in [`app/agents.py`](app/agents.py):
-
-```python
-# Producer: Synthesizes answers
-producer = create_producer_agent(
-    model_name="azure/gpt-5-mini",  # Optional override
-    temperature=1.0,                 # Optional override
-    model_settings={"max_tokens": 2000}  # Optional LiteLLM params
-)
-
-# Critic: Evaluates with structured output
-critic = create_critic_agent(
-    model_name="azure/gpt-4o",
-    temperature=0.4,
-    model_settings={"top_p": 0.8}
-)
-```
-
 ### Critique Rubric
 
 The Critic evaluates answers on 5 dimensions (0.0-1.0 scale):
@@ -200,7 +175,7 @@ The Critic evaluates answers on 5 dimensions (0.0-1.0 scale):
 | **Logical Consistency** | Internally coherent, no contradictions |
 | **Instruction Following** | Directly addresses the user's question |
 
-**Pass Criteria**: All scores ≥ 0.8 AND no HIGH severity issues
+**Pass Criteria**: All scores ≥ 0.9 AND no HIGH severity issues
 
 ### Structured Output
 
@@ -216,46 +191,6 @@ class CritiqueResult(BaseModel):
 ```
 
 PydanticAI automatically injects the schema into the LLM prompt and validates responses.
-
-## 🔧 Advanced Customization
-
-### Using Different Models per Agent
-
-```python
-# In app/orchestrator.py or custom script
-producer = create_producer_agent(model_name="gpt-4o", temperature=1.2)
-critic = create_critic_agent(model_name="claude-3-5-sonnet", temperature=0.3)
-```
-
-### Adding Custom LiteLLM Parameters
-
-```python
-agent = create_producer_agent(
-    model_settings={
-        "max_tokens": 3000,
-        "top_p": 0.95,
-        "frequency_penalty": 0.3
-    }
-)
-```
-
-### Changing Providers
-
-Simply update your `.env`:
-
-```env
-# Switch to OpenAI
-PRODUCER_MODEL=gpt-4o
-CRITIC_MODEL=gpt-4o-mini
-
-# Or Anthropic
-PRODUCER_MODEL=claude-3-5-sonnet
-CRITIC_MODEL=claude-3-5-sonnet
-
-# Or Google
-PRODUCER_MODEL=gemini/gemini-pro
-CRITIC_MODEL=gemini/gemini-pro
-```
 
 ## 🤝 Contributing
 

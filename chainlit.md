@@ -63,13 +63,6 @@ Click the **settings icon** (⚙️) to configure:
 3. **Watch the iterations**: See how the answer improves with each cycle
 4. **Review the scores**: Understand where the answer excels or needs work
 
-## 🔧 Technical Details
-
-- **Framework**: PydanticAI for type-safe agent orchestration
-- **LLM Gateway**: LiteLLM for provider-agnostic model access
-- **Structured Output**: Pydantic models ensure valid, parseable critiques
-- **UI**: Chainlit for interactive, step-by-step visualization
-
 ## 📖 Example Use Cases
 
 - **Research Analysis**: Extract insights from academic papers
