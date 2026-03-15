@@ -2,3 +2,5 @@
 .env.azure
 .files
 .chainlit/translations
+.pre-commit-config.yaml
+.secrets.baseline
