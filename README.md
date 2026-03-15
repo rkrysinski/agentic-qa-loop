@@ -2,21 +2,9 @@
 
 A multi-agent system that generates accurate, document-grounded answers using an iterative Producer-Critic loop.
 
-```
- Document + Question
-        │
-        ▼
-   ┌─────────┐
-   │ Producer│◄──── Critique feedback
-   └────┬────┘
-        │ Answer
-        ▼
-   ┌─────────┐
-   │  Critic │──── PASS ──► Final Answer
-   └─────────┘
-        │
-       FAIL (repeat up to N iterations)
-```
+Upload a document, ask a question, and get a grounded answer. Once the final answer is ready, ask follow-up questions about **that answer** — to reformat, translate, shorten, or expand it. The document is not re-analysed; the follow-up refines the answer itself.
+
+<video src="demo/demo.webm" autoplay loop muted playsinline></video>
 
 ## Installation
 
@@ -33,7 +21,6 @@ Open **http://localhost:8000**
 2. Ask a question
 3. Watch the Producer generate an answer and the Critic refine it until it passes validation
 
-Follow-up questions are supported — the system uses the previous answer as context.
 
 ## Documentation
 
