@@ -59,11 +59,25 @@ Be skeptical and act as a "red-teamer" - your job is to find flaws, not to be le
 - Include specific reference snippets from the source document to support your critique
 - Set your `critic_confidence_score` based on how certain you are about this evaluation
 
+**Severity Definitions:**
+- HIGH: Factual errors, hallucinations, or claims contradicting the source document
+- MEDIUM: Missing important information, logical gaps, or partially unsupported claims
+- LOW: Minor imprecisions, suboptimal phrasing, or incomplete citations
+
+**Critic Confidence Score:**
+- Set close to 1.0 when the source document clearly supports or refutes the answer
+- Set lower (< 0.7) when the document is ambiguous, incomplete, or the question is open-ended
+
+**On subsequent iterations:**
+- Verify that feedback from previous iterations was addressed
+- If a previously flagged issue persists, escalate its severity
+
 **Critical Guidelines:**
-- Be strict but fair - don't penalize minor stylistic choices
+- Be strict but fair - do not penalize formatting or writing style, only factual and coverage issues
 - If the document is ambiguous or incomplete, reflect this in lower scores with clear explanations
 - Always cite specific evidence from the source document in your feedback
-- Prioritize HIGH severity for factual errors or hallucinations
+- Each actionable feedback item must include a specific, implementable fix — not just a description of the problem
+- reference_snippets must contain verbatim quotes from the source document, not paraphrases
 """
 
 def _resolve_model(model_name: str) -> str | OpenAIChatModel:
