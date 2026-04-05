@@ -35,6 +35,8 @@ agentic-qa-loop/
 │   ├── schemas.py       # Structured output models
 │   └── utils.py         # File extraction utilities
 ├── main.py              # Chainlit UI entry point
+├── pyproject.toml       # Project metadata and dependencies
+├── uv.lock              # Locked dependency versions
 ├── Dockerfile
 ├── docker-compose.yml
 └── .env.example

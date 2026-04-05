@@ -1,0 +1,13 @@
+[project]
+name = "agentic-qa-loop"
+version = "0.1.0"
+description = "Agentic QA Loop"
+requires-python = ">=3.12"
+dependencies = [
+    "pydantic-ai",
+    "pydantic-settings",
+    "litellm",
+    "chainlit",
+    "python-dotenv",
+    "watchfiles",
+]

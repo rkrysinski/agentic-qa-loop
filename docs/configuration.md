@@ -40,6 +40,6 @@ AZURE_API_BASE=https://<your-resource>.openai.azure.com/openai/v1/
 ## Running Locally (without Docker)
 
 ```bash
-pip install -r requirements.txt
-chainlit run main.py -w
+uv sync
+uv run chainlit run main.py -w
 ```

@@ -1,6 +1,0 @@
-pydantic-ai
-pydantic-settings
-litellm
-chainlit
-python-dotenv
-watchfiles

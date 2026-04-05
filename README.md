@@ -13,6 +13,14 @@ cp .env.example .env   # add your API keys
 docker-compose up --build
 ```
 
+Or run locally without Docker:
+
+```bash
+cp .env.example .env   # add your API keys
+uv sync
+uv run chainlit run main.py -w
+```
+
 Open **http://localhost:8000**
 
 ## Usage
